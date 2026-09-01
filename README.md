@@ -1,13 +1,13 @@
 # 🛣️ Road Pothole Detection System
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://potholedetectorsystem.streamlit.app)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://potholedetectionsystem.streamlit.app/)
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)
 ![YOLO](https://img.shields.io/badge/model-YOLOv8-orange.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 
 An AI-powered computer vision application designed to inspect, detect, and evaluate road surface defects and potholes in real-time. Built for deployment in **connected vehicle dashcams**, **ADAS perception pipelines**, **autonomous vehicle navigation**, and **municipal road audit tools**, powered by a custom-trained **Ultralytics YOLOv8** model and a modern, theme-adaptive glassmorphic dashboard.
 
-🔗 **Live Deployment:** [potholedetectorsystem.streamlit.app](https://potholedetectorsystem.streamlit.app)
+🔗 **Live Deployment:** [potholedetectorsystem.streamlit.app](https://potholedetectionsystem.streamlit.app)
 
 ---
 
