@@ -79,14 +79,17 @@ st.markdown("""
         letter-spacing: -0.02em;
     }
     
-    /* Premium Header Container */
+    /* Premium Header Container (Universal Light & Dark Glassmorphism) */
     .header-banner {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        background: rgba(128, 128, 128, 0.08);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border: 1px solid rgba(128, 128, 128, 0.2);
         border-radius: 16px;
-        padding: 2.5rem;
-        color: #ffffff;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
-        margin-bottom: 2rem;
+        padding: 1.5rem 2rem;
+        color: inherit;
+        box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
         position: relative;
         overflow: hidden;
     }
@@ -94,14 +97,61 @@ st.markdown("""
     .header-banner::after {
         content: "";
         position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 70%);
+        top: -40%;
+        right: -8%;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0) 70%);
         border-radius: 50%;
+        pointer-events: none;
     }
 
+    .header-banner::before {
+        content: "";
+        position: absolute;
+        bottom: -40%;
+        left: -8%;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.14) 0%, rgba(59, 130, 246, 0) 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .header-stats-pill {
+        background: rgba(128, 128, 128, 0.08);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(128, 128, 128, 0.2);
+        border-radius: 12px;
+        padding: 0.7rem 1.25rem;
+        min-width: 160px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        color: inherit;
+    }
+
+    /* Sidebar metadata card */
+    .metadata-card {
+        background: rgba(128, 128, 128, 0.08);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 12px;
+        padding: 0.9rem 1.1rem;
+        font-size: 0.82rem;
+        line-height: 1.6;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        color: inherit;
+    }
+
+    /* System ready box */
+    .system-ready-card {
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        border-left: 4px solid #3b82f6;
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        margin-top: 1rem;
+        color: inherit;
+    }
 
     /* Status Badge Indicator */
     .status-badge {
@@ -116,41 +166,41 @@ st.markdown("""
     }
     
     .status-active {
-        background-color: #dcfce7;
-        color: #15803d;
-        border: 1px solid #bbf7d0;
+        background-color: rgba(34, 197, 94, 0.15);
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.35);
     }
     
     .status-missing {
-        background-color: #fee2e2;
-        color: #b91c1c;
-        border: 1px solid #fecaca;
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.35);
     }
     
-
     /* Premium Metric Card */
     .metric-card-container {
         display: flex;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
+        gap: 1.25rem;
+        margin-bottom: 1.75rem;
         width: 100%;
     }
     
     .metric-card-custom {
         flex: 1;
-        background: var(--secondary-background-color, #ffffff);
-        color: var(--text-color, #0f172a);
-        border: 1px solid rgba(128, 128, 128, 0.2);
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        background: rgba(128, 128, 128, 0.08);
+        backdrop-filter: blur(10px);
+        color: inherit;
+        border: 1px solid rgba(128, 128, 128, 0.18);
+        border-radius: 14px;
+        padding: 1.25rem 1.5rem;
+        box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         border-left: 5px solid #cbd5e1;
     }
     
     .metric-card-custom:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.12);
     }
     
     .metric-card-potholes {
@@ -162,20 +212,20 @@ st.markdown("""
     }
     
     .metric-label {
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: var(--text-color, #64748b);
-        opacity: 0.8;
+        font-size: 0.8rem;
+        font-weight: 700;
+        opacity: 0.75;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.35rem;
+        color: inherit;
     }
     
     .metric-value {
         font-size: 2.25rem;
         font-weight: 700;
-        color: var(--text-color, #0f172a);
         font-family: 'Space Grotesk', sans-serif;
+        color: inherit;
     }
     
     /* Table Styling for Details */
@@ -183,17 +233,17 @@ st.markdown("""
         width: 100%;
         border-collapse: collapse;
         margin-top: 1rem;
-        border-radius: 8px;
+        border-radius: 10px;
         overflow: hidden;
-        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         border: 1px solid rgba(128, 128, 128, 0.2);
-        background-color: var(--secondary-background-color, #ffffff);
+        background-color: rgba(128, 128, 128, 0.04);
     }
     
     .details-table th {
-        background-color: var(--secondary-background-color, #f1f5f9);
-        color: var(--text-color, #475569);
-        font-weight: 600;
+        background-color: rgba(128, 128, 128, 0.12);
+        color: inherit;
+        font-weight: 700;
         text-align: left;
         padding: 12px 16px;
         font-size: 0.85rem;
@@ -204,33 +254,37 @@ st.markdown("""
     
     .details-table td {
         padding: 12px 16px;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.15);
-        color: var(--text-color, #334155);
+        border-bottom: 1px solid rgba(128, 128, 128, 0.12);
+        color: inherit;
         font-size: 0.95rem;
     }
     
     .details-table tr:hover {
-        background-color: rgba(128, 128, 128, 0.05);
+        background-color: rgba(128, 128, 128, 0.08);
     }
     
     /* Badge styling in table */
     .badge {
-        padding: 3px 8px;
+        padding: 4px 10px;
         border-radius: 6px;
         font-size: 0.8rem;
         font-weight: 600;
+        display: inline-block;
     }
     .badge-high {
-        background-color: #dcfce7;
-        color: #166534;
+        background-color: rgba(34, 197, 94, 0.15);
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.3);
     }
     .badge-mid {
-        background-color: #fef9c3;
-        color: #854d0e;
+        background-color: rgba(234, 179, 8, 0.15);
+        color: #ca8a04;
+        border: 1px solid rgba(234, 179, 8, 0.3);
     }
     .badge-low {
-        background-color: #fee2e2;
-        color: #991b1b;
+        background-color: rgba(239, 68, 68, 0.15);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.3);
     }
 
     /* Sidebar improvements */
@@ -265,16 +319,30 @@ st.markdown("""
     
     /* Custom File Uploader Dropzone Styling */
     [data-testid="stFileUploaderDropzone"] {
-        border: 2px dashed rgba(239, 68, 68, 0.3) !important;
-        background-color: var(--secondary-background-color, #ffffff) !important;
-        border-radius: 12px !important;
-        padding: 1.5rem !important;
-        transition: all 0.3s ease-in-out !important;
+        border: 2px dashed rgba(128, 128, 128, 0.25) !important;
+        background-color: rgba(128, 128, 128, 0.05) !important;
+        border-radius: 14px !important;
+        padding: 1.15rem 1.5rem !important;
+        transition: all 0.25s ease-in-out !important;
     }
     [data-testid="stFileUploaderDropzone"]:hover {
         border-color: #ef4444 !important;
         background-color: rgba(239, 68, 68, 0.05) !important;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.08) !important;
+        box-shadow: 0 4px 16px rgba(239, 68, 68, 0.1) !important;
+    }
+    
+    /* Clean Modern Tabs Styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 6px;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+        margin-bottom: 0.75rem;
+    }
+    .stTabs [data-baseweb="tab"] {
+        padding: 8px 16px;
+        border-radius: 8px 8px 0 0;
+        font-weight: 600;
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 0.9rem;
     }
     
     /* Primary button enhancements (gradient button) */
@@ -285,7 +353,7 @@ st.markdown("""
         font-weight: 600 !important;
         border-radius: 10px !important;
         padding: 0.65rem 1.5rem !important;
-        box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3) !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.28) !important;
         transition: all 0.25s ease !important;
         font-family: 'Space Grotesk', sans-serif !important;
         letter-spacing: 0.02em !important;
@@ -371,11 +439,23 @@ with st.sidebar:
     # Details Card
     st.markdown("### Model Metadata")
     render_html(f"""
-    <div style="background: var(--background-color, #ffffff); border: 1px solid rgba(128, 128, 128, 0.2); color: var(--text-color, #0f172a); padding: 0.75rem; border-radius: 10px; font-size: 0.8rem; line-height: 1.4;">
-        <span style="opacity: 0.75;">File:</span> <b>best.pt</b><br/>
-        <span style="opacity: 0.75;">Architecture:</span> <b>YOLO</b><br/>
-        <span style="opacity: 0.75;">Class:</span> <b style="color:#ef4444">Pothole</b><br/>
-        <span style="opacity: 0.75;">Mode:</span> <b>Static Image</b>
+    <div class="metadata-card">
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(128, 128, 128, 0.12); padding-bottom: 5px; margin-bottom: 6px;">
+            <span style="opacity: 0.7;">Weights File</span>
+            <b>best.pt</b>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(128, 128, 128, 0.12); padding-bottom: 5px; margin-bottom: 6px;">
+            <span style="opacity: 0.7;">Architecture</span>
+            <b>YOLOv8</b>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid rgba(128, 128, 128, 0.12); padding-bottom: 5px; margin-bottom: 6px;">
+            <span style="opacity: 0.7;">Target Class</span>
+            <b style="color: #ef4444;">Pothole</b>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+            <span style="opacity: 0.7;">Input Mode</span>
+            <b>Image (RGB)</b>
+        </div>
     </div>
     """)
     
@@ -384,13 +464,18 @@ with st.sidebar:
 # ----------------- HEADER BANNER -----------------
 render_html("""
 <div class="header-banner">
-    <h1 style="margin: 0; color: #ffffff; font-size: 2.5rem; line-height: 1.1;">Road Pothole Detection System</h1>
-    <p style="margin: 8px 0 15px 0; color: #94a3b8; font-size: 1.1rem; font-weight: 400;">
-        Automated infrastructure inspection using deep learning YOLO model
-    </p>
-    <div style="font-size: 0.95rem; line-height: 1.6; color: #cbd5e1; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 12px; margin-top: 12px;">
-        Welcome to the <b>Road Pothole Detection Dashboard</b>. This utility utilizes a specialized object detection model to identify road safety hazards automatically. 
-        Simply upload an image of the road surface below, configure your detection sensitivity using the sidebar controls, and let the network locate surface defects in real-time.
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 2.1rem; line-height: 1.2; color: inherit;">Road Pothole Detection System</h1>
+            <p style="margin: 6px 0 0 0; font-size: 0.95rem; opacity: 0.75; color: inherit; max-width: 620px;">
+                Automated road surface inspection powered by custom YOLOv8 deep learning model.
+            </p>
+        </div>
+        <div class="header-stats-pill">
+            <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.7; font-weight: 600; color: inherit;">Detection Engine</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #ef4444; font-family: 'Space Grotesk', sans-serif;">YOLOv8 Active</div>
+            <div style="font-size: 0.75rem; opacity: 0.65; color: inherit;">Real-time Bounding Boxes</div>
+        </div>
     </div>
 </div>
 """)
@@ -443,7 +528,7 @@ if uploaded_file is not None:
             
         with col_trigger:
             st.markdown("#### 🚀 Detection Control")
-            st.write("Click the button below to feed this image into the YOLO neural network model for pothole detection.")
+            st.caption("Feed the input surface imagery to the YOLO model to detect and segment road hazards.")
             
             detect_button = st.button("🔎 Detect Potholes", type="primary", **stretch_kw(st.button))
             
@@ -463,9 +548,13 @@ if uploaded_file is not None:
                 """, unsafe_allow_html=True)
             else:
                 render_html(f"""
-                <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1rem; margin-top: 1rem;">
-                    <span style="color: #1e40af; font-weight: 600; font-size: 0.95rem;">System Ready</span><br/>
-                    <span style="color: #1e3a8a; font-size: 0.85rem;">Currently configured at <b>{confidence_threshold * 100:.0f}% confidence limit</b>. Changing the slider in the sidebar will instantly apply to the next run.</span>
+                <div class="system-ready-card">
+                    <div style="color: #3b82f6; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 2px;">
+                        ⚡ System Ready
+                    </div>
+                    <div style="font-size: 0.85rem; opacity: 0.85; line-height: 1.4;">
+                        Confidence threshold set to <b>{confidence_threshold * 100:.0f}%</b>. Adjust sensitivity in the sidebar anytime.
+                    </div>
                 </div>
                 """)
 
@@ -526,7 +615,7 @@ if uploaded_file is not None:
             col_orig, col_pred = st.columns(2)
             
             with col_orig:
-                st.markdown('<div style="text-align: center; font-weight: 600; padding-bottom: 8px; color: #475569;">Original Image</div>', unsafe_allow_html=True)
+                st.markdown('<div style="text-align: center; font-weight: 600; padding-bottom: 8px; color: inherit; opacity: 0.85;">Original Image</div>', unsafe_allow_html=True)
                 st.image(image_rgb, **stretch_kw(st.image))
                 
             with col_pred:
@@ -541,7 +630,7 @@ if uploaded_file is not None:
             <div class="metric-card-custom metric-card-potholes">
                 <div class="metric-label">Total Potholes Detected</div>
                 <div class="metric-value">{pothole_count}</div>
-                <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">Surface defects identified</div>
+                <div style="font-size: 0.8rem; opacity: 0.7; color: inherit; margin-top: 4px;">Surface defects identified</div>
             </div>
             """
             
@@ -556,8 +645,8 @@ if uploaded_file is not None:
             card_html_2 = f"""
             <div class="metric-card-custom metric-card-confidence">
                 <div class="metric-label">Highest Confidence Score</div>
-                <div class="metric-value" style="color: { '#10b981' if pothole_count > 0 else '#64748b' }">{max_conf_str}</div>
-                <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">{conf_subtext}</div>
+                <div class="metric-value" style="color: { '#10b981' if pothole_count > 0 else 'inherit' }">{max_conf_str}</div>
+                <div style="font-size: 0.8rem; opacity: 0.7; color: inherit; margin-top: 4px;">{conf_subtext}</div>
             </div>
             """
             
@@ -569,7 +658,7 @@ if uploaded_file is not None:
                 <div class="metric-card-custom" style="border-left: 5px solid #3b82f6;">
                     <div class="metric-label">Inference Speed</div>
                     <div class="metric-value" style="color: #3b82f6;">{inference_time:.1f}<span style="font-size: 1.2rem;"> ms</span></div>
-                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">YOLO execution duration</div>
+                    <div style="font-size: 0.8rem; opacity: 0.7; color: inherit; margin-top: 4px;">YOLO execution duration</div>
                 </div>
             </div>
             """)
@@ -620,12 +709,12 @@ if uploaded_file is not None:
             else:
                 st.warning("⚠️ **Detection Complete**: No pothole signatures were identified. Try adjusting the confidence slider lower in the settings if you suspect false negatives.")
 else:
-    # Beautiful empty state hero graphic
+    # Clean adaptive empty state graphic
     render_html("""
-    <div style="text-align: center; padding: 4rem 2rem; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; border-style: dashed; margin-top: 2rem;">
-        <span style="font-size: 4rem; display: block; margin-bottom: 1rem;">🛣️</span>
-        <h3 style="margin: 0; color: #475569;">No Image Uploaded Yet</h3>
-        <p style="color: #94a3b8; font-size: 0.95rem; max-width: 420px; margin: 8px auto 0 auto;">
+    <div style="text-align: center; padding: 3.5rem 2rem; background: rgba(128, 128, 128, 0.05); border-radius: 16px; border: 2px dashed rgba(128, 128, 128, 0.2); margin-top: 1.5rem; color: inherit;">
+        <span style="font-size: 3.5rem; display: block; margin-bottom: 0.75rem;">🛣️</span>
+        <h3 style="margin: 0; color: inherit; font-size: 1.3rem;">No Image Uploaded Yet</h3>
+        <p style="opacity: 0.7; font-size: 0.92rem; max-width: 420px; margin: 8px auto 0 auto; line-height: 1.5;">
             Upload surface imagery in JPG, JPEG, or PNG format using the file browser above to run the YOLO model detectors.
         </p>
     </div>
