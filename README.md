@@ -1,24 +1,86 @@
 # 🛣️ Road Pothole Detection System
 
-An AI-powered computer vision dashboard designed to inspect and identify road potholes in uploaded imagery using a custom-trained **Ultralytics YOLO** model. The interface is built on **Streamlit** with a theme-aware premium layout, support for dark/light modes, performance metrics, and detailed confidence breakdown tables.
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://potholedetectorsystem.streamlit.app)
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)
+![YOLO](https://img.shields.io/badge/model-YOLOv8-orange.svg)
+![Status](https://img.shields.io/badge/status-active-success.svg)
+
+An AI-powered computer vision application designed to inspect, detect, and evaluate road surface defects and potholes in real-time. Powered by a custom-trained **Ultralytics YOLOv8** model and built with a modern, glassmorphic **Streamlit** dashboard that adapts to both Light and Dark themes.
+
+🔗 **Live Deployment:** [potholedetectorsystem.streamlit.app](https://potholedetectorsystem.streamlit.app)
 
 ---
 
-## 🚀 Features
+## 📸 Workflow & Working Explanation
 
-- **🧠 YOLO Neural Network Integration**: Runs inference in real-time on uploaded road surface imagery.
-- **⚡ High-Performance Caching**: Uses Streamlit resource caching (`@st.cache_resource`) to load model weights once, keeping predictions fast and saving system memory.
-- **🎨 Premium Visual Dashboard**:
-  - Custom glassmorphism headers and fonts (**Space Grotesk** & **Plus Jakarta Sans**).
-  - Responsive, styled file upload dropzone with hover micro-animations.
-  - Side-by-side original image vs. bounding-box annotated prediction outputs.
-- **📊 Real-Time Analytics**:
-  - Displays total pothole counts.
-  - Displays highest confidence score percentage.
-  - Reports inference speed (in milliseconds) for the YOLO execution pipeline.
-  - Builds an HTML-formatted, color-coded reliability tier table (**High**, **Medium**, and **Low** confidence badges).
-- **⚙️ Dynamic Parameter Tuning**: Adjustable confidence threshold slider in the sidebar to change detector sensitivity on the fly.
-- **🌗 Theme Compatibility**: Full compatibility with both Streamlit Light and Dark modes.
+The application provides an end-to-end visual inspection pipeline from image ingestion to detailed defect analytics:
+
+### 1. Ingestion & Instant Detection Preview
+Upload road surface imagery in JPG, JPEG, or PNG format. The dashboard loads the custom YOLO weights (`best.pt`) once into memory using `@st.cache_resource` and offers real-time sensitivity controls via the sidebar.
+
+Upon clicking **🔎 Detect Potholes**, the image preview dynamically switches to reveal interactive detection tabs without requiring scrolling:
+
+<p align="center">
+  <img src="assets/detection_preview.png" alt="Detection Preview" width="900">
+</p>
+
+- **Interactive Tab Toggle:** Easily flip between the **🎯 Detection Result** (annotated with localized bounding boxes and confidence tags like `pothole 0.85`, `pothole 0.73`) and the **🖼️ Original Image**.
+- **Real-Time Status Confirmation:** Immediate visual feedback alerts the user to the exact number of identified hazards.
+- **Sidebar Control Panel:** Fine-tune the **Confidence Threshold** slider (10% to 90%) to control detector sensitivity for different road textures and lighting conditions.
+
+---
+
+### 2. Side-by-Side Comparative Analysis & Session Metrics
+Directly beneath the preview, the dashboard generates a full comparative breakdown comparing the raw road surface against the model's bounding-box annotations, accompanied by executive summary metric cards:
+
+<p align="center">
+  <img src="assets/detection_results.png" alt="Detection Results & Metrics" width="900">
+</p>
+
+- **Side-by-Side Image Comparison:** Clearly contrasts original road conditions against annotated defect regions.
+- **Total Potholes Detected:** Quantifies total hazards identified across the surface area.
+- **Highest Confidence Score:** Highlights the peak certainty score among all detections (e.g., `85.00%`).
+- **Inference Speed:** Benchmarks YOLO execution latency in milliseconds (`~96 ms`), verifying production-level real-time performance.
+
+---
+
+### 3. Detailed Detection Breakdown & Reliability Tiers
+Every detected road hazard is cataloged in a structured breakdown table that classifies defects according to confidence reliability tiers:
+
+<p align="center">
+  <img src="assets/confidence_breakdown.png" alt="Confidence Breakdown Table" width="900">
+</p>
+
+- **Defect Indexing:** Each pothole candidate is assigned an individual tracking index (`Pothole #1`, `Pothole #2`, etc.) sorted in descending order of certainty.
+- **Confidence Rating:** Exact percentage certainty reported by the neural network.
+- **Reliability Classification:**
+  - 🟢 **High Confidence (≥ 75%):** Well-defined, critical surface hazards requiring immediate road maintenance attention.
+  - 🟡 **Medium Confidence (45% - 74%):** Developing surface wear, early-stage potholes, or partially obscured depressions.
+  - 🔴 **Low Confidence (< 45%):** Minor road anomalies, surface shadows, or candidates near threshold limits.
+
+---
+
+## 🧠 System Architecture & Pipeline
+
+```mermaid
+graph LR
+    A[📷 Input Surface Image] --> B[🔄 Preprocessing & Orientation]
+    B --> C[⚡ YOLOv8 Deep Learning Inference]
+    C --> D[📦 Bounding Box & Confidence Extraction]
+    D --> E[🎯 Instant Result Tabs Preview]
+    D --> F[📊 Side-by-Side Comparison]
+    D --> G[📈 Session Metrics & Speed Benchmark]
+    D --> H[📋 Reliability Tier Breakdown Table]
+```
+
+---
+
+## ✨ Core Features
+
+- **Custom YOLOv8 Weights:** Leverages specialized weights (`best.pt`) optimized for pavement texture, cracks, and asphalt potholes.
+- **Universal Glassmorphism:** Theme-aware frosted styling (`backdrop-filter`) that automatically adapts seamlessly to both **Light** and **Dark** themes.
+- **Persistent State Management:** Built with `st.session_state` so detection results and metrics persist when adjusting sidebar parameters or switching views.
+- **Non-Blocking Clean Logs:** Fully compatible with modern Streamlit (`width='stretch'`), eliminating deprecated parameter warnings.
 
 ---
 
@@ -26,68 +88,60 @@ An AI-powered computer vision dashboard designed to inspect and identify road po
 
 ```text
 Pothole_Detection/
-├── .gitignore          # Ignores local environments, pycache, and logs
-├── app.py              # Main dashboard script containing UI and YOLO pipeline
-├── best.pt             # Pre-trained YOLO weights (user-provided)
-├── requirements.txt    # Application dependencies list
-└── README.md           # Documentation (this file)
+├── assets/
+│   ├── detection_preview.png       # UI upload & real-time detection tab screenshot
+│   ├── detection_results.png       # Side-by-side comparison and summary metrics
+│   └── confidence_breakdown.png    # Detailed detection breakdown table
+├── .gitignore                      # Git exclusion rules
+├── app.py                          # Streamlit application with YOLOv8 pipeline & custom UI
+├── best.pt                         # Custom-trained YOLO model weights
+├── requirements.txt                # Python package dependencies
+└── README.md                       # Documentation (this file)
 ```
 
 ---
 
-## 🛠️ Installation & Setup
+## 🛠️ Installation & Local Setup
 
-Follow these steps to run the application locally on your system:
-
-### 1. Prerequisites
-Ensure you have Python (version 3.8 to 3.11 is recommended) installed.
-
-### 2. Set Up a Virtual Environment (Recommended)
-Create and activate a virtual environment in the project directory:
-
+### 1. Clone the Repository
 ```bash
-# Create the environment
+git clone https://github.com/Waheexd/Pothole_Detection.git
+cd Pothole_Detection
+```
+
+### 2. Create and Activate a Virtual Environment
+
+**Windows (PowerShell):**
+```powershell
 python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
 
-# Activate it (Windows PowerShell)
-.venv\Scripts\Activate.ps1
-
-# Activate it (Windows Command Prompt)
-.venv\Scripts\activate.bat
-
-# Activate it (macOS/Linux)
+**macOS / Linux:**
+```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
 ### 3. Install Dependencies
-Install all the required Python packages:
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Provide Model Weights
-Place your trained YOLO weights in the project root directory and ensure they are named:
-`best.pt`
-
----
-
-## 💻 Running the Application
-
-Launch the Streamlit web server:
-
+### 4. Run the Application
 ```bash
 streamlit run app.py
 ```
+*(Or directly via virtual environment executable: `.\.venv\Scripts\streamlit.exe run app.py`)*
 
-The application will start, and a browser window will automatically open at:
-`http://localhost:8501`
+Open your browser and navigate to **`http://localhost:8501`**.
 
 ---
 
-## 📝 How to Use
+## ☁️ Deployment on Streamlit Community Cloud
 
-1. **Upload an Image**: Drag & drop or select a JPG, JPEG, or PNG road surface image.
-2. **Configure Threshold**: Adjust the **Confidence Threshold** slider in the sidebar. (A lower threshold detects more potential potholes; a higher threshold filters out weaker matches).
-3. **Trigger Detection**: Click **🔎 Detect Potholes**.
-4. **Analyze Results**: Review the side-by-side visual comparison, metric statistics (potholes count, max confidence, speed), and the detailed breakdown table at the bottom.
+1. Fork or push this repository to GitHub.
+2. Visit [share.streamlit.io](https://share.streamlit.io/) and click **Deploy an app**.
+3. Select your repository (`Waheexd/Pothole_Detection`), set branch to `master`, and main file path to `app.py`.
+4. Click **Deploy**!
