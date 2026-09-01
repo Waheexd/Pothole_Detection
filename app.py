@@ -3,6 +3,20 @@ import numpy as np
 from PIL import Image, ImageOps
 from pathlib import Path
 import time
+import traceback
+import inspect
+
+def stretch_kw(fn=st.image):
+    """
+    Returns {'width': 'stretch'} for modern Streamlit (>= 1.40) to eliminate
+    deprecation warnings, or falls back to {'use_container_width': True} for older versions.
+    """
+    try:
+        if "width" in inspect.signature(fn).parameters:
+            return {"width": "stretch"}
+    except Exception:
+        pass
+    return {"use_container_width": True}
 
 # Set Streamlit page configuration first
 st.set_page_config(
@@ -88,20 +102,7 @@ st.markdown("""
         border-radius: 50%;
     }
 
-    .header-badge {
-        background-color: rgba(239, 68, 68, 0.2);
-        color: #f87171;
-        padding: 4px 12px;
-        border-radius: 9999px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        display: inline-block;
-        margin-bottom: 0.75rem;
-        border: 1px solid rgba(239, 68, 68, 0.3);
-    }
-    
+
     /* Status Badge Indicator */
     .status-badge {
         display: inline-flex;
@@ -126,21 +127,7 @@ st.markdown("""
         border: 1px solid #fecaca;
     }
     
-    /* Upload Cards */
-    .upload-card {
-        background: #ffffff;
-        border: 2px dashed #cbd5e1;
-        border-radius: 12px;
-        padding: 2rem;
-        text-align: center;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    .upload-card:hover {
-        border-color: #ef4444;
-        background: #fef2f2;
-    }
-    
+
     /* Premium Metric Card */
     .metric-card-container {
         display: flex;
@@ -419,6 +406,12 @@ uploaded_file = st.file_uploader(
 # ----------------- APPLICATION FLOW -----------------
 if uploaded_file is not None:
     try:
+        # Reset detection results if a new file is uploaded
+        file_id = getattr(uploaded_file, "file_id", uploaded_file.name)
+        if st.session_state.get("current_file_id") != file_id:
+            st.session_state["current_file_id"] = file_id
+            st.session_state["detection_result"] = None
+
         # Load and orient PIL image correctly
         image = Image.open(uploaded_file)
         image = ImageOps.exif_transpose(image)
@@ -435,18 +428,33 @@ if uploaded_file is not None:
         # Layout columns: Preview on Left, Control/Trigger on Right
         col_preview, col_trigger = st.columns([5, 3])
         
+        has_results = st.session_state.get("detection_result") is not None
+        
         with col_preview:
             st.markdown("#### 🖼️ Image Preview")
-            st.image(image_rgb, use_container_width=True)
+            if has_results:
+                tab_pred, tab_orig = st.tabs(["🎯 Detection Result", "🖼️ Original Image"])
+                with tab_pred:
+                    st.image(st.session_state["detection_result"]["annotated_image"], **stretch_kw(st.image))
+                with tab_orig:
+                    st.image(image_rgb, **stretch_kw(st.image))
+            else:
+                st.image(image_rgb, **stretch_kw(st.image))
             
         with col_trigger:
             st.markdown("#### 🚀 Detection Control")
             st.write("Click the button below to feed this image into the YOLO neural network model for pothole detection.")
             
-            detect_button = st.button("🔎 Detect Potholes", type="primary", use_container_width=True)
+            detect_button = st.button("🔎 Detect Potholes", type="primary", **stretch_kw(st.button))
             
-            # Nice dynamic message depending on best.pt presence
-            if not model_exists:
+            if has_results:
+                det = st.session_state["detection_result"]
+                cnt = det["pothole_count"]
+                if cnt > 0:
+                    st.success(f"✅ **Detection Complete!** Identified **{cnt}** pothole{'s' if cnt > 1 else ''}. Full report and comparison below 👇")
+                else:
+                    st.warning("⚠️ **Detection Complete**: No potholes identified with current confidence threshold. Try lowering the threshold slider in the sidebar.")
+            elif not model_exists:
                 st.markdown("""
                 <div style="background-color: #fee2e2; border: 1px solid #fecaca; border-radius: 12px; padding: 1rem; margin-top: 1rem;">
                     <span style="color: #b91c1c; font-weight: 600; font-size: 0.95rem;">Model file best.pt not found!</span><br/>
@@ -484,116 +492,133 @@ if uploaded_file is not None:
                         annotated_image_bgr = result.plot()
                         annotated_image_rgb = annotated_image_bgr[:, :, ::-1]
                         
-                        # Output comparison
-                        st.markdown("---")
-                        st.markdown("### 📊 Detection Results")
-                        
-                        col_orig, col_pred = st.columns(2)
-                        
-                        with col_orig:
-                            st.markdown('<div style="text-align: center; font-weight: 600; padding-bottom: 8px; color: #475569;">Original Image</div>', unsafe_allow_html=True)
-                            st.image(image_rgb, use_container_width=True)
-                            
-                        with col_pred:
-                            st.markdown('<div style="text-align: center; font-weight: 600; padding-bottom: 8px; color: #ef4444;">Annotated Result (Bounding Boxes)</div>', unsafe_allow_html=True)
-                            st.image(annotated_image_rgb, use_container_width=True)
-
                         # Extract confidences
                         confidences = []
                         if pothole_count > 0:
                             confidences = result.boxes.conf.cpu().numpy().tolist()
                         
-                        # Render Premium Summary Cards
-                        st.markdown("---")
-                        st.markdown("### 📈 Session Summary")
-                        
-                        card_html_1 = f"""
-                        <div class="metric-card-custom metric-card-potholes">
-                            <div class="metric-label">Total Potholes Detected</div>
-                            <div class="metric-value">{pothole_count}</div>
-                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">Surface defects identified</div>
-                        </div>
-                        """
-                        
-                        if pothole_count > 0:
-                            max_conf_pct = max(confidences) * 100
-                            max_conf_str = f"{max_conf_pct:.2f}%"
-                            conf_subtext = f"Across {pothole_count} detections"
-                        else:
-                            max_conf_str = "N/A"
-                            conf_subtext = "No detections made"
-                            
-                        card_html_2 = f"""
-                        <div class="metric-card-custom metric-card-confidence">
-                            <div class="metric-label">Highest Confidence Score</div>
-                            <div class="metric-value" style="color: { '#10b981' if pothole_count > 0 else '#64748b' }">{max_conf_str}</div>
-                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">{conf_subtext}</div>
-                        </div>
-                        """
-                        
-                        # Custom card column structure
-                        render_html(f"""
-                        <div class="metric-card-container">
-                            {card_html_1}
-                            {card_html_2}
-                            <div class="metric-card-custom" style="border-left: 5px solid #3b82f6;">
-                                <div class="metric-label">Inference Speed</div>
-                                <div class="metric-value" style="color: #3b82f6;">{inference_time:.1f}<span style="font-size: 1.2rem;"> ms</span></div>
-                                <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">YOLO execution duration</div>
-                            </div>
-                        </div>
-                        """)
-                        
-                        # Detailed detection breakdown
-                        st.markdown("### 📋 Detailed Detection Breakdown")
-                        if pothole_count > 0:
-                            # Order confidences descending
-                            sorted_conf = sorted(confidences, reverse=True)
-                            
-                            # Render HTML Table
-                            table_rows = ""
-                            for idx, conf in enumerate(sorted_conf, 1):
-                                pct = conf * 100
-                                # Determine badge color
-                                if pct >= 75:
-                                    badge_class = "badge-high"
-                                    badge_text = "High Confidence"
-                                elif pct >= 45:
-                                    badge_class = "badge-mid"
-                                    badge_text = "Medium Confidence"
-                                else:
-                                    badge_class = "badge-low"
-                                    badge_text = "Low Confidence"
-                                    
-                                table_rows += f"""
-                                <tr>
-                                    <td>Pothole #{idx}</td>
-                                    <td><b>{pct:.2f}%</b></td>
-                                    <td><span class="badge {badge_class}">{badge_text}</span></td>
-                                </tr>
-                                """
-                                
-                            render_html(f"""
-                            <table class="details-table">
-                                <thead>
-                                    <tr>
-                                        <th>Detection Index</th>
-                                        <th>Confidence Value</th>
-                                        <th>Reliability Tier</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {table_rows}
-                                </tbody>
-                            </table>
-                            """)
-                        else:
-                            st.warning("⚠️ **Detection Complete**: No pothole signatures were identified. Try adjusting the confidence slider lower in the settings if you suspect false negatives.")
+                        # Save in session state so results persist across interactions
+                        st.session_state["detection_result"] = {
+                            "annotated_image": annotated_image_rgb,
+                            "pothole_count": pothole_count,
+                            "confidences": confidences,
+                            "inference_time": inference_time,
+                        }
+                        st.rerun()
                             
                     except Exception as pred_err:
                         st.error("❌ **Prediction Failed**: The model encountered a processing error while predicting on this image array.")
                         with st.expander("Show detailed logs"):
                             st.code(traceback.format_exc())
+
+        # Render Full Report & Analytics when detection has completed
+        if st.session_state.get("detection_result") is not None:
+            det = st.session_state["detection_result"]
+            pothole_count = det["pothole_count"]
+            confidences = det["confidences"]
+            inference_time = det["inference_time"]
+            annotated_image_rgb = det["annotated_image"]
+
+            # Output comparison
+            st.markdown("---")
+            st.markdown("### 📊 Detection Results")
+            
+            col_orig, col_pred = st.columns(2)
+            
+            with col_orig:
+                st.markdown('<div style="text-align: center; font-weight: 600; padding-bottom: 8px; color: #475569;">Original Image</div>', unsafe_allow_html=True)
+                st.image(image_rgb, **stretch_kw(st.image))
+                
+            with col_pred:
+                st.markdown('<div style="text-align: center; font-weight: 600; padding-bottom: 8px; color: #ef4444;">Annotated Result (Bounding Boxes)</div>', unsafe_allow_html=True)
+                st.image(annotated_image_rgb, **stretch_kw(st.image))
+
+            # Render Premium Summary Cards
+            st.markdown("---")
+            st.markdown("### 📈 Session Summary")
+            
+            card_html_1 = f"""
+            <div class="metric-card-custom metric-card-potholes">
+                <div class="metric-label">Total Potholes Detected</div>
+                <div class="metric-value">{pothole_count}</div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">Surface defects identified</div>
+            </div>
+            """
+            
+            if pothole_count > 0:
+                max_conf_pct = max(confidences) * 100
+                max_conf_str = f"{max_conf_pct:.2f}%"
+                conf_subtext = f"Across {pothole_count} detections"
+            else:
+                max_conf_str = "N/A"
+                conf_subtext = "No detections made"
+                
+            card_html_2 = f"""
+            <div class="metric-card-custom metric-card-confidence">
+                <div class="metric-label">Highest Confidence Score</div>
+                <div class="metric-value" style="color: { '#10b981' if pothole_count > 0 else '#64748b' }">{max_conf_str}</div>
+                <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">{conf_subtext}</div>
+            </div>
+            """
+            
+            # Custom card column structure
+            render_html(f"""
+            <div class="metric-card-container">
+                {card_html_1}
+                {card_html_2}
+                <div class="metric-card-custom" style="border-left: 5px solid #3b82f6;">
+                    <div class="metric-label">Inference Speed</div>
+                    <div class="metric-value" style="color: #3b82f6;">{inference_time:.1f}<span style="font-size: 1.2rem;"> ms</span></div>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">YOLO execution duration</div>
+                </div>
+            </div>
+            """)
+            
+            # Detailed detection breakdown
+            st.markdown("### 📋 Detailed Detection Breakdown")
+            if pothole_count > 0:
+                # Order confidences descending
+                sorted_conf = sorted(confidences, reverse=True)
+                
+                # Render HTML Table
+                table_rows = ""
+                for idx, conf in enumerate(sorted_conf, 1):
+                    pct = conf * 100
+                    # Determine badge color
+                    if pct >= 75:
+                        badge_class = "badge-high"
+                        badge_text = "High Confidence"
+                    elif pct >= 45:
+                        badge_class = "badge-mid"
+                        badge_text = "Medium Confidence"
+                    else:
+                        badge_class = "badge-low"
+                        badge_text = "Low Confidence"
+                        
+                    table_rows += f"""
+                    <tr>
+                        <td>Pothole #{idx}</td>
+                        <td><b>{pct:.2f}%</b></td>
+                        <td><span class="badge {badge_class}">{badge_text}</span></td>
+                    </tr>
+                    """
+                    
+                render_html(f"""
+                <table class="details-table">
+                    <thead>
+                        <tr>
+                            <th>Detection Index</th>
+                            <th>Confidence Value</th>
+                            <th>Reliability Tier</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {table_rows}
+                    </tbody>
+                </table>
+                """)
+            else:
+                st.warning("⚠️ **Detection Complete**: No pothole signatures were identified. Try adjusting the confidence slider lower in the settings if you suspect false negatives.")
 else:
     # Beautiful empty state hero graphic
     render_html("""
